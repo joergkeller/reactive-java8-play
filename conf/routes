@@ -6,6 +6,9 @@
 GET		/acquirer/reservation			controllers.CardAcquirer.reservation(no ?= "", exp ?= "", amount:Int ?= 0, currency ?= "CHF")
 GET		/acquirer/commit				controllers.CardAcquirer.commit(reservation ?= "", amount:Int ?= 0, currency ?= "CHF")
 
+# Limmat Shopping
+GET		/order							controllers.LimmatShopping.order
+
 # Play demo routes
 GET        /                              controllers.Application.index()
 

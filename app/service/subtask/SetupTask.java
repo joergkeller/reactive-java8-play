@@ -35,7 +35,7 @@ public class SetupTask {
 		insertStockItems(new long[] {1, 2, 3}, new long[] {77, 22, 55});
 		insertSelectedItems(new long[] {1, 99, 99, 99}, new long[] {1, 1, 2, 3});
 		db.modify("INSERT INTO users (user_id, email, card, expiration) VALUES (?,?,?,?)", 1, "user@server.domain", "1234-5678", "07-15");
-		db.modifyBatch("INSERt INTO logon_users (session_id, user_id) VALUES (?,?)", new long[] {-1, 99}, 1L);
+		db.modifyBatch("INSERT INTO logon_users (session_id, user_id) VALUES (?,?)", new long[] {-1, 99}, 1L);
 	}
 
 	private void insertStockItems(long[] ids, long[] amounts) {

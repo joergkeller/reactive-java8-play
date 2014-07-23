@@ -97,7 +97,11 @@ public class OrderProcess {
 	}
 
 	private String onOrderConfirmation(OrderItems orderItems, Temporal expectedDelivery, Customer customer) {
-		return String.format("Your order was processed successfully. A confirmation mail was sent to %s. Delivery is expected at %tF.", customer.getEmail(), expectedDelivery);
+		Amount amount = orderItems.getTotalAmount();
+		return String.format("Your order (%d items, %d %s) was processed successfully.\n"
+						   + "A confirmation mail was sent to %s.\n"
+	                       + "Delivery is expected at %tF.\n", 
+	                         orderItems.size(), amount.getFullAmount(), amount.getCurrency(), customer.getEmail(), expectedDelivery);
 	}
 
 }
