@@ -22,7 +22,7 @@ http://dev.mysql.com/downloads/mysql/
 
 Download the Project
 ====================
-(TBD)
+git clone https://github.com/joergkeller/reactive-java8-play.git
 
 Create a MySql Database
 =======================
@@ -63,10 +63,6 @@ C:...reactive-java8-play> activator test
 	[success] Total time: 12 s, completed 23.07.2014 11:04:29
 
 # Generate/update Eclipse project files
-To use the Eclipse plugin (generating .project files):
-	# C:\Users\%USER%\.sbt\0.13\plugins\plugins.sbt:
-	addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.4.0")
-
 C:...reactive-java8-play> activator eclipse
 	[info] Loading global plugins from C:\Users\jke\.sbt\0.13\plugins
 	[info] Loading project definition from C:\Users\jke\Projects\reactive-workshop\reactive-java8-play\project
