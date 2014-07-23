@@ -1,0 +1,13 @@
+mysql.exe -u root
+(with a password: mysql.exe -u root -p)
+
+mysql> show databases;
+
+mysql> create database books;
+
+mysql> grant usage on *.* to books@localhost identified by 'books';
+
+mysql> grant all privileges on books.* to books@localhost;
+
+### Driver: com.mysql.jdbc.Driver
+### URL: jdbc:mysql://localhost/books

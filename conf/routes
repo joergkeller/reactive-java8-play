@@ -1,0 +1,26 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Credit Card Aquirer (supposed to run on a remote server)
+GET		/acquirer/reservation			controllers.CardAcquirer.reservation(no ?= "", exp ?= "", amount:Int ?= 0, currency ?= "CHF")
+GET		/acquirer/commit				controllers.CardAcquirer.commit(reservation ?= "", amount:Int ?= 0, currency ?= "CHF")
+
+# Play demo routes
+GET        /                              controllers.Application.index()
+
+GET        /sync-foo                      controllers.Application.syncFoo()
+GET        /async-foo                     controllers.Application.asyncFoo()
+GET        /async-non-blocking-foo        controllers.Application.asyncNonBlockingFoo()
+GET        /reactive-request              controllers.Application.reactiveRequest()
+GET        /reactive-composition          controllers.Application.reactiveComposition()
+
+# Server Sent Events
+GET        /events                        controllers.Application.events()
+
+# WebSocket
+GET        /echo                          controllers.Application.echo()
+
+# Map static resources from the /public folder to the /assets URL path
+GET        /assets/*file                  controllers.Assets.at(path="/public", file)
+GET        /webjars/*file                 controllers.WebJarAssets.at(file)

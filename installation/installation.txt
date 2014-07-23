@@ -1,0 +1,76 @@
+Install Java 8
+==============
+http://www.oracle.com/technetwork/java/javase/downloads
+
+Calling java from the command prompt should show a valid Java 8 version:
+C:> java -version
+java version "1.8.0_05"
+Java(TM) SE Runtime Environment (build 1.8.0_05-b13)
+Java HotSpot(TM) 64-Bit Server VM (build 25.5-b02, mixed mode)
+
+Install GIT
+===========
+http://msysgit.github.io/
+
+Calling git from the command prompt should output something like this:
+C:> git --version
+git version 1.9.0.msysgit.0
+
+Install MySQL
+=============
+http://dev.mysql.com/downloads/mysql/
+
+Download the Project
+====================
+(TBD)
+
+Create a MySql Database
+=======================
+mysql.exe -u root
+(with a password: mysql.exe -u root -p)
+
+mysql> show databases;
+mysql> create database books;
+mysql> grant usage on *.* to books@localhost identified by 'books';
+mysql> grant all privileges on books.* to books@localhost;
+
+### Driver: com.mysql.jdbc.Driver
+### URL: jdbc:mysql://localhost/books
+
+Start MySQL, FakeSMTP, Play!
+============================
+%MYSQL_HOME%\bin\mysqld.exe --console
+%WORKSHOP%\reactive-java8-play\fake-smtp\smtp-start.cmd
+
+# Run the Play! web framework using SBT
+C:> cd %WORKSHOP%\reactive-java8-play
+C:...reactive-java8-play> activator run
+	[info] Loading global plugins from C:\Users\jke\.sbt\0.13\plugins
+	[info] Loading project definition from C:\Users\jke\Projects\reactive-workshop\reactive-java8-play\project
+	[info] Set current project to reactive-java8-play (in build file:/C:/Users/jke/Projects/reactive-workshop/reactive-java8-play/)
+	--- (Running the application from SBT, auto-reloading is enabled) ---
+	[info] play - Listening for HTTP on /0:0:0:0:0:0:0:0:9000
+	(Server started, use Ctrl+D to stop and go back to the console...)
+
+# Tests are integration tests, accessing http://localhost:9000, DB, SMTP-Server and Filesystem
+C:...reactive-java8-play> activator test
+	[info] ...
+	[info] Test service.OrderProcessTest.massiveOrderRequests_newThreads ignored
+	[info] Test service.OrderProcessTest.massiveOrderRequests_sequentialExecution ignored
+	[info] Test service.OrderProcessTest.massiveOrderRequest_threadPool ignored
+	[info] ...
+	[info] Passed: Total 17, Failed 0, Errors 0, Passed 14, Skipped 3
+	[success] Total time: 12 s, completed 23.07.2014 11:04:29
+
+# Generate/update Eclipse project files
+To use the Eclipse plugin (generating .project files):
+	# C:\Users\%USER%\.sbt\0.13\plugins\plugins.sbt:
+	addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.4.0")
+
+C:...reactive-java8-play> activator eclipse
+	[info] Loading global plugins from C:\Users\jke\.sbt\0.13\plugins
+	[info] Loading project definition from C:\Users\jke\Projects\reactive-workshop\reactive-java8-play\project
+	[info] Set current project to reactive-java8-play (in build file:/C:/Users/jke/Projects/reactive-workshop/reactive-java8-play/)
+	[info] About to create Eclipse project files for your project(s).
+	[info] Successfully created Eclipse project files for project(s):
+	[info] reactive-java8-play

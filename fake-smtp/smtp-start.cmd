@@ -1,0 +1,1 @@
+java -jar fakeSMTP-1.10.jar -p 1024 -s
