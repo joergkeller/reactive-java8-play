@@ -58,7 +58,11 @@ public class OrderProcess {
 	}
 	
 	public String processOrder() {
-		return collectCurrentCustomer().get(60, TimeUnit.SECONDS);
+		return asyncProcessOrder().get(60, TimeUnit.SECONDS);
+	}
+
+	public Promise<String> asyncProcessOrder() {
+		return collectCurrentCustomer();
 	}
 
 	private Promise<String> collectCurrentCustomer() {

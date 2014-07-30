@@ -8,6 +8,7 @@ GET		/acquirer/commit				controllers.CardAcquirer.commit(reservation ?= "", amou
 
 # Limmat Shopping
 GET		/order							controllers.LimmatShopping.order
+GET		/async-order					controllers.LimmatShopping.asyncOrder
 
 # Play demo routes
 GET        /                              controllers.Application.index()

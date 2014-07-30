@@ -3,6 +3,7 @@ package controllers;
 import java.util.Random;
 
 import model.SessionId;
+import play.libs.F.Promise;
 import play.mvc.Controller;
 import play.mvc.Result;
 import service.OrderProcess;
@@ -32,6 +33,13 @@ public class LimmatShopping extends Controller {
 		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
 		String response = orderProcess.processOrder();
 		return ok(response);
+	}
+
+	public static Promise<Result> asyncOrder() {
+		SessionId sessionId = new SessionId((long) (random.nextInt(SESSIONS) + 1));
+		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
+		Promise<String> responseFuture = orderProcess.asyncProcessOrder();
+		return responseFuture.map(response -> ok(response));
 	}
 
 }

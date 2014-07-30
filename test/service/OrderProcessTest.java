@@ -4,6 +4,9 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -17,6 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import play.libs.F.Promise;
 import service.helper.Scheduler;
 import service.subtask.DbTask;
 import service.subtask.SetupTask;
@@ -96,13 +100,19 @@ public class OrderProcessTest {
 
 	@Test @Ignore
 	public void massiveOrderRequest_threadPool() throws InterruptedException {
+		Collection<Promise<String>> results = Collections.synchronizedCollection(new LinkedList<Promise<String>>());
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolCount);
 		for (int i = 0; i < numberOfOrders; i++) {
-			executor.execute(() -> processOrderForSession(randomSessionId(), dbTasks));
+			executor.execute(() -> {
+				SessionId sessionId = new SessionId((long) randomSessionId());
+				OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
+				Promise<String> result = orderProcess.asyncProcessOrder();
+				results.add(result);
+			});
 		}
-		// wait for executor to complete
 		executor.shutdown();
 		executor.awaitTermination(300, TimeUnit.SECONDS);
+		OrderProcess.awaitAll(results);
 		executor.shutdownNow();
 	}
 	
