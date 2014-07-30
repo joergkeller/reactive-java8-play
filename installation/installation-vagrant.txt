@@ -1,12 +1,12 @@
 Install VirtualBox, Vagrant
 ===========================
-
 https://www.virtualbox.org/wiki/Downloads
 https://www.vagrantup.com/downloads.html
 
 Setup the virtual DevBox
 ========================
 Unzip the Vagrant/Chef project to some %PROJECT% directory.
+Alternative: git clone https://github.com/joergkeller/vagrant-devbox-reactive.git
 
 C:> cd %PROJECT%
 C:> vagrant up --provision
@@ -21,14 +21,19 @@ If only a command line prompt is provided, login and perform a restart:
 $ sudo shutdown -r now
 
 You should then be able to use the graphical desktop of Ubuntu.
-Change the keyboard in a XTerm or in System Settings > Typing:
+Change the keyboard in a XTerm (Ctrl-Alt-T) or in System Settings > Typing:
 $ setxkbmap 'ch(de)'
 
 Start FakeSMTP, Play!, Eclipse
 ==============================
-
 $ cd ~/workspace/reactive-java8-play
-$ fake-smtp/smtp-start &
-$ activator run &
+$ fake-smtp/smtp-start
+$ activator run
 $ activator test 
 $ eclipse
+
+Open Eclipse with the default workspace '/home/developer/workspace'. 
+Lock the application to the launcher (right mouse click) for simpler startup.
+File > Import > Existing Projects into Workspace > reactive-java8-play
+Window > Show View > Other > Java > Package Explorer (instead Project Explorer)
+
