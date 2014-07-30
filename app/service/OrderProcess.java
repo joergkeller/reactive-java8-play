@@ -39,13 +39,25 @@ public class OrderProcess {
 	}
 	
 	public String processOrder() {
+		return collectCurrentCustomer();
+	}
+
+	private String collectCurrentCustomer() {
 		Optional<Customer> customerOption = customerTask.obtain(sessionId);
+		return collectSelectedItems(customerOption);
+	}
+
+	private String collectSelectedItems(Optional<Customer> customerOption) {
 		if (!customerOption.isPresent()) {
 			return onMissingCustomer();
 		}
 		Customer customer = customerOption.get();
 
 		OrderItems orderItems = itemTask.collect(sessionId);
+		return checkCardValidation(customer, orderItems);
+	}
+
+	private String checkCardValidation(Customer customer, OrderItems orderItems) {
 		if (orderItems.isEmpty()) {
 			return onMissingItems();
 		}
@@ -53,23 +65,43 @@ public class OrderProcess {
 		CardDetail cardDetails = customer.getCardDetails();
 		Amount totalAmount = orderItems.getTotalAmount();
 		ValidationResult validation = cardTask.checkValidity(cardDetails, totalAmount);
+		return assignOrderedItems(customer, orderItems, validation);
+	}
+
+	private String assignOrderedItems(Customer customer, OrderItems orderItems, ValidationResult validation) {
+		CardDetail cardDetails = customer.getCardDetails();
+		Amount totalAmount = orderItems.getTotalAmount();
 		if (!validation.isValid()) {
 			return onInvalidCard(cardDetails, totalAmount);
 		}
 		
 		boolean reservation = itemTask.assign(sessionId, orderItems);
+		return chargeTotalAmount(customer, orderItems, validation, reservation);
+	}
+
+	private String chargeTotalAmount(Customer customer, OrderItems orderItems, ValidationResult validation, boolean reservation) {
 		if (!reservation) {
 			return onOutOfStock();
 		}
 		
+		Amount totalAmount = orderItems.getTotalAmount();
 		ValidationResult debitResult = cardTask.debit(validation.getReservation(), totalAmount);
+		return submitOrderForProcessing(customer, orderItems, debitResult);
+	}
+
+	private String submitOrderForProcessing(Customer customer, OrderItems orderItems, ValidationResult debitResult) {
+		CardDetail cardDetails = customer.getCardDetails();
+		Amount totalAmount = orderItems.getTotalAmount();
 		if (!debitResult.isValid()) {
 			return onInvalidCard(cardDetails, totalAmount);
 		}
 		
 		Temporal expectedDelivery = orderTask.submit(orderItems, customer);
+		return sendConfirmationMail(customer, orderItems, expectedDelivery);
+	}
+
+	private String sendConfirmationMail(Customer customer, OrderItems orderItems, Temporal expectedDelivery) {
 		mailTask.confirm(orderItems, expectedDelivery, customer);
-		
 		return onOrderConfirmation(orderItems, expectedDelivery, customer);
 	}
 
