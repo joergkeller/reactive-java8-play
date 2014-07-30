@@ -99,6 +99,17 @@ public class OrderProcessTest {
 	}
 
 	@Test @Ignore
+	/* With 1 connection:
+	 * r-threads	sync
+	 *   1		290s
+	 * With 4 connections:
+	 * r-threads	sync	async.get	async	parallel	ws	parallel+ws
+	 *   1					222s		25s		26s			8s	9s
+	 *   4			81s		 65s		25s		25s			8s	8s
+	 *  16			49s		 49s		25s		26s			8s	8s
+	 *  64 			32s		 53s		25s		25s			8s	8s
+	 * 256			30s		 64s		25s		26s			9s	8s
+	 */
 	public void massiveOrderRequest_threadPool() throws InterruptedException {
 		Collection<Promise<String>> results = Collections.synchronizedCollection(new LinkedList<Promise<String>>());
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolCount);
