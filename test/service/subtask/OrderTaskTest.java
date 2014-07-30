@@ -19,7 +19,7 @@ public class OrderTaskTest {
 		OrderTask task = new OrderTask("orders");
 		Customer customer = new Customer(new CardDetail("1234", "08-15"), "mail@server.domain");
 		OrderItems items = new OrderItems(Collections.emptyList());
-		ZonedDateTime delivery = (ZonedDateTime) task.process(items, customer);
+		ZonedDateTime delivery = (ZonedDateTime) task.submit(items, customer);
 		assertThat(delivery.isAfter(ZonedDateTime.now()), equalTo(true));
 	}
 	

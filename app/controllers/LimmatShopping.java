@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.Random;
 
+import model.SessionId;
 import play.mvc.Controller;
 import play.mvc.Result;
 import service.OrderProcess;
@@ -27,8 +28,10 @@ public class LimmatShopping extends Controller {
 	}
 
 	public static Result order() {
-		long id = random.nextInt(SESSIONS) + 1;
-		return ok(service.OrderProcess.processOrderForSession(id, dbTasks));
+		SessionId sessionId = new SessionId((long) (random.nextInt(SESSIONS) + 1));
+		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
+		String response = orderProcess.processOrder();
+		return ok(response);
 	}
 
 }

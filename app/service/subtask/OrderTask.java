@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.UUID;
 
 import model.Customer;
 import model.OrderItems;
 
 public class OrderTask {
 
-	private static int orderId = 1;
-	
 	private final File directory;
 
 	public OrderTask(String dirname) {
@@ -21,9 +20,10 @@ public class OrderTask {
 		directory.mkdirs();
 	}
 
-	public Temporal process(OrderItems items, Customer customer) {
+	public Temporal submit(OrderItems items, Customer customer) {
 		try {
-			File file = new File(directory, String.format("order-%d.txt", orderId++));
+			String id = UUID.randomUUID().toString();
+			File file = new File(directory, String.format("order-%s.txt", id));
 			if (file.exists()) { file.delete(); }
 			file.createNewFile();
 			FileWriter writer = new FileWriter(file);

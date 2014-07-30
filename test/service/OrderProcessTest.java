@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import model.SessionId;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -36,7 +38,7 @@ public class OrderProcessTest {
 	private Scheduler<DbTask> dbTasks = new Scheduler<>(dbPoolSize, OrderProcess::createDb);
 	
 	@BeforeClass
-	public static void setup() {
+	public static void setupClass() {
 		setupTask.insertTestData();
 		setupTask.insertRandomData(random, ITEMS_IN_STOCK, SESSIONS, TOTAL_SELECTIONS);
 		dbTask.close();
@@ -47,36 +49,42 @@ public class OrderProcessTest {
 	public void teardown() {
 		dbTasks.forEach(db -> db.close());
 	}
-
+	
 
 	private int randomSessionId() {
 		return random.nextInt(SESSIONS)+1;
 	}
 
+	private String processOrderForSession(long id, Scheduler<DbTask> dbTasks) {
+		SessionId sessionId = new SessionId(id);
+		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
+		return orderProcess.processOrder();
+	}
+
 	@Test
 	public void singleOrder() {
-		String result = OrderProcess.processOrderForSession(99, dbTasks);
+		String result = processOrderForSession(99, dbTasks);
 		assertThat(result, startsWith("Your order"));
 	}
 	
 	@Test
 	public void order_missingItems_failure() {
-		String result = OrderProcess.processOrderForSession(-1, dbTasks);;
+		String result = processOrderForSession(-1, dbTasks);;
 		assertThat(result, startsWith("No items selected"));
 	}
 	
-	@Test @Ignore("takes about 200s")
+	@Test @Ignore
 	public void massiveOrderRequests_sequentialExecution() {
 		for (int i = 0; i < numberOfOrders; i++) {
-			OrderProcess.processOrderForSession(randomSessionId(), dbTasks);
+			processOrderForSession(randomSessionId(), dbTasks);
 		}
 	}
 	
-	@Test @Ignore("takes about 8s with 1/4 connections")
+	@Test @Ignore
 	public void massiveOrderRequests_newThreads() throws InterruptedException {
 		List<Thread> threads = new ArrayList<Thread>(numberOfOrders);
 		for (int i = 0; i < numberOfOrders; i++) {
-			Thread th = new Thread(() -> OrderProcess.processOrderForSession(randomSessionId(), dbTasks));
+			Thread th = new Thread(() -> processOrderForSession(randomSessionId(), dbTasks));
 			th.start();
 			threads.add(th);
 		}
@@ -86,24 +94,16 @@ public class OrderProcessTest {
 		}
 	}
 
-	@Test //@Ignore
-	/* With 1 connection:
-	 * threads	randomdata
-	 *   1		
-	 * With 4 connections:
-	 * threads	randomdata
-	 *   4		81s
-	 *  16		49s
-	 *  64 		32s	
-	 * 256		30s
-	 */
+	@Test @Ignore
 	public void massiveOrderRequest_threadPool() throws InterruptedException {
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolCount);
 		for (int i = 0; i < numberOfOrders; i++) {
-			executor.execute(() -> OrderProcess.processOrderForSession(randomSessionId(), dbTasks));
+			executor.execute(() -> processOrderForSession(randomSessionId(), dbTasks));
 		}
+		// wait for executor to complete
 		executor.shutdown();
-		executor.awaitTermination(240, TimeUnit.SECONDS);
+		executor.awaitTermination(300, TimeUnit.SECONDS);
 		executor.shutdownNow();
 	}
+	
 }

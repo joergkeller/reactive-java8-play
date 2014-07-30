@@ -19,25 +19,18 @@ import service.subtask.OrderTask;
 
 public class OrderProcess {
 	
-	private final SessionId sessionId;
-	private final DbTask dbTask;
-	private final CustomerTask customerTask;
-	private final ItemTask itemTask;
-	private final CreditCardTask cardTask = new CreditCardTask("http://localhost:9000/acquirer/");
-	private final OrderTask orderTask = new OrderTask("orders");
-	private final MailTask mailTask = new MailTask("localhost", 1024);
+	final SessionId sessionId;
+	final DbTask dbTask;
+	final CustomerTask customerTask;
+	final ItemTask itemTask;
+	final CreditCardTask cardTask = new CreditCardTask("http://localhost:9000/acquirer/");
+	final OrderTask orderTask = new OrderTask("orders");
+	final MailTask mailTask = new MailTask("localhost", 1024);
 	
 	public static DbTask createDb() {
 		return new DbTask("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/books", "books", "books");
 	}
 
-	public static String processOrderForSession(long id, Scheduler<DbTask> dbTasks) {
-		SessionId sessionId = new SessionId(id);
-		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
-		return orderProcess.processOrder();
-	}
-
-	
 	public OrderProcess(SessionId sessionId, Scheduler<DbTask> dbTasks) {
 		this.sessionId = sessionId;
 		this.dbTask = dbTasks.get();
@@ -74,7 +67,7 @@ public class OrderProcess {
 			return onInvalidCard(cardDetails, totalAmount);
 		}
 		
-		Temporal expectedDelivery = orderTask.process(orderItems, customer);
+		Temporal expectedDelivery = orderTask.submit(orderItems, customer);
 		mailTask.confirm(orderItems, expectedDelivery, customer);
 		
 		return onOrderConfirmation(orderItems, expectedDelivery, customer);

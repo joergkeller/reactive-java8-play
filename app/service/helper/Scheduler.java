@@ -17,6 +17,10 @@ public class Scheduler<T> implements Supplier<T> {
 		}
 	}
 
+	public int size() {
+		return pool.size();
+	}
+
 	@Override
 	public synchronized T get() {
 		try {

@@ -24,7 +24,7 @@ public class MailTask {
 		session = Session.getDefaultInstance(properties);
 	}
 
-	public void confirm(OrderItems orderItems, Temporal expectedDelivery, Customer customer) {
+	public boolean confirm(OrderItems orderItems, Temporal expectedDelivery, Customer customer) {
 		try {
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress("test@zuehlke.com"));
@@ -36,6 +36,7 @@ public class MailTask {
 					   + String.format("The amount will be booked to your card ending with ...%s", anonymize(4, customer.getCardDetails().getNumber()));
 			message.setText(msg);
 			Transport.send(message);
+			return true;
 		} catch (Exception e) {
 			throw new MailException(e);
 		}
