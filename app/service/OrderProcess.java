@@ -15,6 +15,7 @@ import model.SessionId;
 import model.ValidationResult;
 import play.libs.F.Promise;
 import play.libs.F.Tuple;
+import play.libs.WS.Response;
 import scala.concurrent.ExecutionContext;
 import service.helper.Scheduler;
 import service.subtask.CreditCardTask;
@@ -29,7 +30,6 @@ public class OrderProcess {
 	
 	static final ExecutionContext runner = ExecutionContexts.fromExecutorService(Executors.newFixedThreadPool(8)); // non-blocking tasks
 	static final ExecutionContext dbRunner = ExecutionContexts.fromExecutorService(Executors.newFixedThreadPool(4)); // blocking db access
-	static final ExecutionContext wsRunner = ExecutionContexts.fromExecutorService(Executors.newFixedThreadPool(8)); // blocking webservices
 	static final ExecutionContext fsRunner = ExecutionContexts.fromExecutorService(Executors.newSingleThreadExecutor()); // blocking filesystem writes
 	static final ExecutionContext mailRunner = ExecutionContexts.fromExecutorService(Executors.newSingleThreadExecutor()); // blocking mail send
 
@@ -88,7 +88,9 @@ public class OrderProcess {
 
 		CardDetail cardDetails = customer.getCardDetails();
 		Amount totalAmount = orderItems.getTotalAmount();
-		Promise<ValidationResult> validationFuture = Promise.promise(() -> cardTask.checkValidity(cardDetails, totalAmount), wsRunner);
+		Promise<Response> responseFuture = cardTask.checkValidityAsync(cardDetails, totalAmount);
+		responseFuture.onFailure(th -> th.printStackTrace(), fsRunner);
+		Promise<ValidationResult> validationFuture = responseFuture.map(cardTask::fromCheckResponse, runner);
 		validationFuture.onFailure(th -> th.printStackTrace(), fsRunner);
 		return validationFuture.flatMap(validation -> assignOrderedItems(customer, orderItems, validation), runner);
 	}
@@ -111,7 +113,9 @@ public class OrderProcess {
 		}
 		
 		Amount totalAmount = orderItems.getTotalAmount();
-		Promise<ValidationResult> debitFuture = Promise.promise(() -> cardTask.debit(validation.getReservation(), totalAmount), wsRunner);
+		Promise<Response> responseFuture = cardTask.debitAsync(validation.getReservation(), totalAmount);
+		responseFuture.onFailure(th -> th.printStackTrace(), fsRunner);
+		Promise<ValidationResult> debitFuture = responseFuture.map(cardTask::fromDebitResponse, runner);
 		debitFuture.onFailure(th -> th.printStackTrace(), fsRunner);
 		return debitFuture.flatMap(debitResult -> submitOrderForProcessing(customer, orderItems, debitResult), runner);
 	}
