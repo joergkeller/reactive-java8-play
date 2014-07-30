@@ -14,6 +14,7 @@ import model.OrderItems;
 import model.SessionId;
 import model.ValidationResult;
 import play.libs.F.Promise;
+import play.libs.F.Tuple;
 import scala.concurrent.ExecutionContext;
 import service.helper.Scheduler;
 import service.subtask.CreditCardTask;
@@ -68,24 +69,22 @@ public class OrderProcess {
 	private Promise<String> collectCurrentCustomer() {
 		Promise<Optional<Customer>> customerFuture = Promise.promise(() -> customerTask.obtain(sessionId), dbRunner);
 		customerFuture.onFailure(th -> th.printStackTrace(), fsRunner);
-		return customerFuture.flatMap(this::collectSelectedItems, runner);
+
+		Promise<OrderItems> orderFuture = Promise.promise(() -> itemTask.collect(sessionId), dbRunner);
+		orderFuture.onFailure(th -> th.printStackTrace(), fsRunner);
+		
+		Promise<Tuple<Optional<Customer>, OrderItems>> sessionFuture = customerFuture.zip(orderFuture);
+		return sessionFuture.flatMap(tuple -> checkCardValidation(tuple._1, tuple._2), runner);
 	}
 
-	private Promise<String> collectSelectedItems(Optional<Customer> customerOption) {
+	private Promise<String> checkCardValidation(Optional<Customer> customerOption, OrderItems orderItems) {
+		if (orderItems.isEmpty()) {
+			return Promise.pure(onMissingItems());
+		}
 		if (!customerOption.isPresent()) {
 			return Promise.pure(onMissingCustomer());
 		}
 		Customer customer = customerOption.get();
-
-		Promise<OrderItems> orderFuture = Promise.promise(() -> itemTask.collect(sessionId), dbRunner);
-		orderFuture.onFailure(th -> th.printStackTrace(), fsRunner);
-		return orderFuture.flatMap(orderItems -> checkCardValidation(customer, orderItems), runner);
-	}
-
-	private Promise<String> checkCardValidation(Customer customer, OrderItems orderItems) {
-		if (orderItems.isEmpty()) {
-			return Promise.pure(onMissingItems());
-		}
 
 		CardDetail cardDetails = customer.getCardDetails();
 		Amount totalAmount = orderItems.getTotalAmount();
