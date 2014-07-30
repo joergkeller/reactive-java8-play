@@ -63,10 +63,10 @@ public class OrderProcess {
 	}
 
 	public Promise<String> asyncProcessOrder() {
-		return collectCurrentCustomer();
+		return collectSessionItems();
 	}
 
-	private Promise<String> collectCurrentCustomer() {
+	private Promise<String> collectSessionItems() {
 		Promise<Optional<Customer>> customerFuture = Promise.promise(() -> customerTask.obtain(sessionId), dbRunner);
 		customerFuture.onFailure(th -> th.printStackTrace(), fsRunner);
 
