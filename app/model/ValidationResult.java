@@ -7,11 +7,11 @@ package model;
 public class ValidationResult {
 
 	private final boolean valid;
-	private final String reservation;
+	private final String reservationId;
 
-	public ValidationResult(boolean valid, String reservation) {
+	public ValidationResult(boolean valid, String reservationId) {
 		this.valid = valid;
-		this.reservation = reservation;
+		this.reservationId = reservationId;
 	}
 
 	/** Helper constructor if no confirmation tag is present. */
@@ -23,8 +23,12 @@ public class ValidationResult {
 		return valid;
 	}
 
-	public String getReservation() {
-		return reservation;
+	public boolean isReservation() {
+		return valid && reservationId != null;
+	}
+
+	public String getReservationId() {
+		return reservationId;
 	}
 
 }

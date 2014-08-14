@@ -1,14 +1,24 @@
 package controllers;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import model.SessionId;
+import play.libs.Akka;
+import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.concurrent.Future;
 import service.OrderProcess;
 import service.helper.Scheduler;
 import service.subtask.DbTask;
 import service.subtask.SetupTask;
+import actor.DatabaseActor;
+import actor.OrderActor;
+import akka.actor.ActorRef;
+import akka.japi.Util;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 
 public class LimmatShopping extends Controller {
 	
@@ -21,6 +31,8 @@ public class LimmatShopping extends Controller {
 	private static final SetupTask setupTask = new SetupTask(dbTasks.get());
 	private static final Random random = new Random();
 	
+	private static final ActorRef database = Akka.system().actorOf(DatabaseActor.props());
+
 	static {
 		setupTask.insertTestData();
 		setupTask.insertRandomData(random, ITEMS_IN_STOCK, SESSIONS, TOTAL_SELECTIONS);
@@ -32,6 +44,14 @@ public class LimmatShopping extends Controller {
 		OrderProcess orderProcess = new OrderProcess(sessionId, dbTasks);
 		String response = orderProcess.processOrder();
 		return ok(response);
+	}
+	
+	public static F.Promise<Result> actorOrder() {
+		SessionId sessionId = new SessionId((long) (random.nextInt(SESSIONS) + 1));
+		ActorRef orders = Akka.system().actorOf(OrderActor.props(sessionId, database));
+		Future<Object> response = Patterns.ask(orders, OrderActor.PROCESS_ORDER, new Timeout(4, TimeUnit.SECONDS));
+		Future<String> stringResponse = response.mapTo(Util.classTag(String.class));
+		return F.Promise.wrap(stringResponse).map(content -> ok(content));
 	}
 
 }

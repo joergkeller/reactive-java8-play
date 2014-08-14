@@ -62,7 +62,7 @@ public class OrderProcess {
 			return onOutOfStock();
 		}
 		
-		ValidationResult debitResult = cardTask.debit(validation.getReservation(), totalAmount);
+		ValidationResult debitResult = cardTask.debit(validation.getReservationId(), totalAmount);
 		if (!debitResult.isValid()) {
 			return onInvalidCard(cardDetails, totalAmount);
 		}

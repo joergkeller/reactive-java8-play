@@ -23,7 +23,7 @@ public class CardAcquirer extends Controller {
 		}, 100, TimeUnit.MILLISECONDS);
 	}
 	
-	public static F.Promise<Result> commit(String reservation, int amount, String currency) {
+	public static F.Promise<Result> commit(String reservationId, int amount, String currency) {
 		return F.Promise.delayed(() -> ok(String.format("Committed %d %s", amount, currency)), 100, TimeUnit.MILLISECONDS);
 	}
 

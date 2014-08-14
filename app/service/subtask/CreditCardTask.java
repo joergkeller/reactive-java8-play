@@ -40,7 +40,7 @@ public class CreditCardTask {
 	public ValidationResult fromCheckResponse(Response response) {
 		JsonNode result = response.asJson();
 //		System.out.println(result.toString());
-		return new ValidationResult(result.get("valid").asBoolean(), result.get("reservation").asText());
+		return new ValidationResult(result.get("valid").asBoolean(), result.get("reservationId").asText());
 	}
 
 	public ValidationResult debit(String reservationTag, Amount finalAmount) {
@@ -51,7 +51,7 @@ public class CreditCardTask {
 
 	public Promise<Response> debitAsync(String reservationTag, Amount finalAmount) {
 		WSRequestHolder ws = WS.url(acquirerUrl + "commit");
-		ws.setQueryParameter("reservation", reservationTag);
+		ws.setQueryParameter("reservationId", reservationTag);
 		ws.setQueryParameter("amount", String.valueOf(finalAmount.getFullAmount()));
 		ws.setQueryParameter("currency", finalAmount.getCurrency());
 		Promise<Response> promise = ws.get();
