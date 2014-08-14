@@ -31,7 +31,7 @@ public class LimmatShopping extends Controller {
 	private static final SetupTask setupTask = new SetupTask(dbTasks.get());
 	private static final Random random = new Random();
 	
-	private static final ActorRef database = Akka.system().actorOf(DatabaseActor.props());
+	private static final ActorRef database = Akka.system().actorOf(DatabaseActor.props(), "databases");
 
 	static {
 		setupTask.insertTestData();

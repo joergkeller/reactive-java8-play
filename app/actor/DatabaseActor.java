@@ -11,6 +11,7 @@ import service.subtask.DbTask;
 import service.subtask.ItemTask;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.routing.FromConfig;
 
 
 /**
@@ -63,7 +64,8 @@ public class DatabaseActor extends UntypedActor {
 	
 	/** Actor props factory. */
 	public static Props props() {
-		return Props.create(DatabaseActor.class);
+		return Props.create(DatabaseActor.class)
+				    .withRouter(new FromConfig());
 	}
 
 	@Override
