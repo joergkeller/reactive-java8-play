@@ -11,6 +11,11 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.pattern.Patterns;
 
+/**
+ * Actor interacting with the card acquirer web service to
+ * - check the card validation and make a reservation
+ * - confirm the reservation and commit the transaction 
+ */
 public class CardActor extends UntypedActor {
 
 	private final CreditCardTask cardTask = new CreditCardTask("http://localhost:9000/acquirer/");

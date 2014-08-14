@@ -12,6 +12,13 @@ import service.subtask.ItemTask;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
+
+/**
+ * Actor to perform database tasks like
+ * - select the logged-in customer
+ * - select the items selected by the customer
+ * - assign the selected items as bought 
+ */
 public class DatabaseActor extends UntypedActor {
 
 	// Actor message -> Optional<Customer>

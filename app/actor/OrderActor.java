@@ -22,6 +22,16 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 
+
+/**
+ * Actor to process an order on behalf of the customer. Each instance is
+ * assigned to the current session and will process the steps to
+ * 1. Select customer and order items associated with the session
+ * 2. Perform credit card validation and commit
+ * 3. Assign selected items as bought (only if card is valid, but before amount committed)
+ * 4. Send an order to the store house, receiving an expected delivery date
+ * 5. Confirm the order as email and with a response to the user. 
+ */
 public class OrderActor extends UntypedActor {
 
 	// Actor message -> String response
